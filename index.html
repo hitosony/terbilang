@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konversi Angka ke Terbilang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #a855f7 50%, #ec4899 100%);
+        }
+        .card {
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4 font-sans">
+    <div class="card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-opacity-20 border-white">
+        <div class="p-8">
+            <div class="flex items-center justify-center mb-6">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9a6ec65a-8188-4847-858d-8c31411a03e9.png" alt="Icon aplikasi konversi angka dengan ilustrasi kartu kredit dan tulisan Rupiah" class="rounded-full shadow-md">
+                <h1 class="ml-4 text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    Konverter Terbilang
+                </h1>
+            </div>
+            
+            <div class="mb-6">
+                <label for="input-angka" class="block text-sm font-medium text-gray-700 mb-2">Masukkan Angka</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                        Rp
+                    </div>
+                    <input 
+                        type="number" 
+                        id="input-angka" 
+                        class="block w-full pl-10 p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-4 focus:ring-purple-300" 
+                        placeholder="123456789"
+                        min="0"
+                        step="1"
+                    >
+                </div>
+            </div>
+            
+            <button 
+                id="btn-konversi" 
+                class="w-full text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg px-5 py-3.5 mb-6 transition-all duration-300 transform hover:scale-[1.02]"
+            >
+                Konversi ke Terbilang (Rupiah)
+            </button>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hasil Terbilang</label>
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-24">
+                    <p id="hasil-terbilang" class="text-gray-800"></p>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-xs text-gray-500 text-center">
+                <p>Klik pada hasil terbilang untuk menyalin ke clipboard</p>
+            </div>
+        </div>
+        
+        <div class="bg-black bg-opacity-5 p-4 text-center text-sm text-gray-600">
+            © 2024 Konverter Terbilang - Dibuat dengan ❤️ di Indonesia
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputAngka = document.getElementById('input-angka');
+            const btnKonversi = document.getElementById('btn-konversi');
+            const hasilTerbilang = document.getElementById('hasil-terbilang');
+            
+            // Fungsi konversi angka ke terbilang
+            function angkaKeTerbilang(angka) {
+                angka = Math.floor(angka);
+                const satuan = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
+                const belasan = ['sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 'enam belas', 'tujuh belas', 'delapan belas', 'sembilan belas'];
+                const ribuan = ['', 'ribu', 'juta', 'milyar', 'triliun', 'kuadriliun'];
+                
+                if (angka === 0) return 'nol';
+                if (angka < 10) return satuan[angka];
+                if (angka < 20) return belasan[angka - 10];
+                if (angka < 100) {
+                    const puluh = Math.floor(angka / 10);
+                    const sisa = angka % 10;
+                    return (puluh === 1 ? 'se' : satuan[puluh]) + ' puluh' + (sisa ? ' ' + satuan[sisa] : '');
+                }
+                
+                // Handle angka >= 100
+                let result = '';
+                let ribuanIndex = 0;
+                
+                while (angka > 0) {
+                    const chunk = angka % 1000;
+                    angka = Math.floor(angka / 1000);
+                    
+                    if (chunk !== 0) {
+                        let chunkText = '';
+                        const ratus = Math.floor(chunk / 100);
+                        const puluh = chunk % 100;
+                        
+                        if (ratus > 0) {
+                            chunkText += (ratus === 1 ? 'seratus' : satuan[ratus] + ' ratus');
+                            if (puluh > 0) chunkText += ' ';
+                        }
+                        
+                        if (puluh > 0) {
+                            if (puluh < 10) {
+                                chunkText += satuan[puluh];
+                            } else if (puluh < 20) {
+                                chunkText += belasan[puluh - 10];
+                            } else {
+                                const puluhPuluhan = Math.floor(puluh / 10);
+                                const puluhSatuan = puluh % 10;
+                                chunkText += (puluhPuluhan === 1 ? 'se' : satuan[puluhPuluhan]) + ' puluh';
+                                if (puluhSatuan) chunkText += ' ' + satuan[puluhSatuan];
+                            }
+                        }
+                        
+                        // Handle kasus khusus untuk 'seribu'
+                        if (ribuanIndex === 1 && chunk === 1) {
+                            chunkText = 'seribu';
+                        } else {
+                            chunkText += ' ' + ribuan[ribuanIndex];
+                        }
+                        
+                        result = chunkText + (result ? ' ' + result : '');
+                    }
+                    
+                    ribuanIndex++;
+                }
+                
+                return result.trim();
+            }
+            
+            // Event listener untuk tombol konversi
+            btnKonversi.addEventListener('click', async function() {
+                const angka = parseFloat(inputAngka.value);
+                
+                if (isNaN(angka) || angka < 0) {
+                    hasilTerbilang.textContent = 'Masukkan angka yang valid (≥ 0)';
+                    return;
+                }
+
+                try {
+                    btnKonversi.disabled = true;
+                    btnKonversi.textContent = 'Memproses...';
+                    
+                    const response = await fetch('https://api.terbilang.com/convert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ angka: angka })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        hasilTerbilang.innerHTML = data.terbilang;
+                        hasilTerbilang.classList.add('font-semibold', 'text-lg', 'leading-relaxed', 'text-purple-800');
+                        hasilTerbilang.classList.remove('text-gray-800');
+                    } else {
+                        hasilTerbilang.textContent = 'Error: ' + data.message;
+                    }
+                } catch (error) {
+                    hasilTerbilang.textContent = 'Gagal mengakses API. Menggunakan konversi lokal...';
+                    // Fallback ke konversi lokal jika API error
+                    const terbilang = angkaKeTerbilang(angka);
+                    const words = terbilang.split(' ');
+                    const capitalized = words.map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ') + ' Rupiah';
+                    hasilTerbilang.innerHTML = capitalized;
+                } finally {
+                    btnKonversi.disabled = false;
+                    btnKonversi.textContent = 'Konversi ke Terbilang (Rupiah)';
+                }
+            });
+            
+            // Event listener untuk menyalin ke clipboard
+            hasilTerbilang.addEventListener('click', function() {
+                if (!hasilTerbilang.textContent || hasilTerbilang.textContent.includes('Error') || hasilTerbilang.textContent.includes('Gagal')) return;
+                
+                const textToCopy = hasilTerbilang.textContent.endsWith('Rupiah') 
+                    ? hasilTerbilang.textContent 
+                    : hasilTerbilang.textContent + ' Rupiah';
+                
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        const originalText = hasilTerbilang.textContent;
+                        hasilTerbilang.textContent = 'Tersalin ke clipboard!';
+                        hasilTerbilang.classList.add('text-green-600');
+                        setTimeout(() => {
+                            hasilTerbilang.innerHTML = originalText;
+                            hasilTerbilang.classList.remove('text-green-600');
+                        }, 1500);
+                    });
+            });
+            
+            // Event listener untuk input dengan tombol Enter
+            inputAngka.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    btnKonversi.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
